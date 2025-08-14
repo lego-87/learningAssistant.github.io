@@ -1,2 +1,0 @@
-# learningAssistant.github.io
-learningAssistant
