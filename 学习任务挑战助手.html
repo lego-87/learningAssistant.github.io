@@ -1,0 +1,1546 @@
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>学习任务挑战助手</title>
+<!-- 引入Font Awesome图标库 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* 保持原有样式不变 */
+:root {
+    --primary-color: #FF4081;
+    --secondary-color: #2196F3;
+    --accent-color: #FF9800;
+    --light-bg: #fff0f5;
+    --task-bg: #ffddee;
+    --text-color: #333;
+    --shadow: 0 4px 12px rgba(0,0,0,0.15);
+    --radius: 20px;
+    --spacing: 20px;
+}
+
+body.dark-mode {
+    --primary-color: #ff7aa2;
+    --secondary-color: #3d9ff5;
+    --accent-color: #ffb74d;
+    --light-bg: #2d232c;
+    --task-bg: #4a3a47;
+    --text-color: #f0f0f0;
+    --shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Comic Sans MS", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(120deg, #FFE6F0, #E0F7FF);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding: 20px;
+    transition: background 0.3s, color 0.3s;
+    position: relative;
+}
+
+body.dark-mode {
+    background: linear-gradient(120deg, #3a2e39, #1a2c38);
+}
+
+/* 头部样式 */
+.header {
+    max-width: 1200px;
+    margin: 0 auto 30px;
+    text-align: center;
+}
+
+h1 {
+    color: var(--primary-color);
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(255,209,220,0.8);
+    transition: text-shadow 0.3s, color 0.3s;
+}
+
+/* 输入区域样式 */
+.input-section {
+    max-width: 1200px;
+    margin: 0 auto var(--spacing);
+    background: var(--light-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.input-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-group {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.input-area select,
+.input-area input {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: white;
+    color: var(--text-color);
+    transition: background 0.3s;
+}
+
+body.dark-mode .input-area select,
+body.dark-mode .input-area input {
+    background: #555;
+}
+
+.input-area select option {
+    background-color: var(--light-bg);
+    color: var(--text-color);
+}
+
+body.dark-mode .input-area select option {
+    background-color: var(--light-bg);
+}
+
+.input-area input::placeholder {
+    color: #aaa;
+}
+
+.input-area button {
+    padding: 16px 24px;
+    font-size: 18px;
+    border-radius: 15px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.1s, background 0.3s;
+    min-width: 120px;
+}
+
+.input-area button:hover {
+    transform: scale(1.05);
+}
+
+.flower-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    background: rgba(255,255,255,0.7);
+    padding: 10px 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: background 0.3s;
+}
+
+body.dark-mode .flower-display {
+    background: rgba(50,50,50,0.7);
+}
+
+.flower-count {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 24px;
+}
+
+/* 游戏时间兑换按钮 */
+.redeem-btn {
+    background-color: #8BC34A !important;
+    margin-left: 10px;
+}
+
+/* 右下角图标按钮样式 */
+.icon-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.icon-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.icon-btn:hover {
+    transform: scale(1.1);
+}
+
+.export-btn { background-color: var(--secondary-color); }
+.import-btn { background-color: #4CAF50; }
+.theme-btn { background-color: #9C27B0; }
+
+#importInput {
+    display: none;
+}
+
+/* 统计区域 */
+.stats-section {
+    max-width: 1200px;
+    margin: 0 auto var(--spacing);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background: var(--light-bg);
+    border-radius: var(--radius);
+    padding: 15px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.stat-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.stat-card .value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* 任务区域容器 */
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    margin-bottom: 80px;
+}
+
+@media (min-width: 768px) {
+    .main-container {
+        flex-direction: row;
+    }
+}
+
+/* 任务列样式 */
+.task-column {
+    flex: 1;
+    background: var(--light-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+.task-column h2 {
+    color: var(--primary-color);
+    font-size: 22px;
+    margin: 0 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed var(--task-bg);
+    text-align: center;
+}
+
+/* 任务列表样式 */
+.task-list {
+    list-style: none;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 500px;
+    padding-right: 10px;
+}
+
+/* 滚动条美化 */
+.task-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+    opacity: 0.7;
+}
+
+/* 任务项样式 */
+.task-item {
+    background: var(--task-bg);
+    margin-bottom: 12px;
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: slideIn 0.3s ease-out;
+}
+
+.task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-10px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.task-info {
+    flex: 1;
+}
+
+.task-tag {
+    display: inline-block;
+    font-size: 14px;
+    background: rgba(255,255,255,0.5);
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.task-text {
+    word-break: break-word;
+}
+
+.task-time {
+    color: #666;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+body.dark-mode .task-time {
+    color: #bbb;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.task-item button {
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.3s;
+}
+
+.task-item button:hover {
+    transform: scale(1.05);
+}
+
+.edit-btn { background-color: #9C27B0; color: white; }
+.delete-btn { background-color: #f44336; color: white; }
+.start-btn { background-color: var(--secondary-color); color: white; }
+.done-btn { background-color: var(--accent-color); color: white; }
+
+/* 进度条样式 */
+.progress-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--primary-color);
+    width: 100%;
+    transition: width 1s linear;
+}
+
+/* 完成和失败状态 */
+.task-item.failed {
+    background: #e0e0e0;
+    opacity: 0.8;
+}
+
+.task-item.completed {
+    opacity: 0.9;
+}
+
+.task-item .flower {
+    color: var(--primary-color);
+    font-size: 20px;
+    margin-left: 5px;
+}
+
+/* 弹窗样式 */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: var(--light-bg);
+    padding: 30px;
+    border-radius: var(--radius);
+    text-align: center;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+    animation: popup-show 0.3s forwards;
+    z-index: 999;
+    min-width: 280px;
+    max-width: 90%;
+}
+
+@keyframes popup-show {
+    to { transform: translate(-50%, -50%) scale(1); }
+}
+
+.popup img {
+    width: 100px;
+    margin-bottom: 15px;
+}
+
+.popup h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 24px;
+}
+
+.popup button {
+    margin-top: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    border: none;
+}
+
+/* 错误提示 */
+.error-message {
+    color: #f44336;
+    text-align: center;
+    margin: 10px 0;
+    height: 24px;
+    font-size: 16px;
+}
+
+/* 隐藏元素 */
+.hidden {
+    display: none;
+}
+
+/* 游戏时间兑换页面样式 - 优化后 */
+#gameTimePage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--light-bg);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#gameTimePage h2 {
+    color: var(--primary-color);
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* 游戏时间兑换容器 - 规整布局 */
+.game-time-container {
+    width: 100%;
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+}
+
+body.dark-mode .game-time-container {
+    background: rgba(60, 60, 60, 0.8);
+}
+
+.game-time-info {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px dashed var(--task-bg);
+}
+
+.game-time-controls {
+    text-align: center;
+}
+
+/* 时间选择按钮区域 - 分为上下两排 */
+.time-selection {
+    margin-bottom: 30px;
+}
+
+.time-selection-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.time-selection button {
+    padding: 15px 25px;
+    font-size: 18px;
+    border-radius: 10px;
+    border: none;
+    background-color: var(--secondary-color);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 120px;
+    max-width: 150px;
+}
+
+.time-selection button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.time-selection button.selected {
+    background-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.time-display {
+    font-size: 72px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 30px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* 游戏操作按钮区域 - 规整排列 */
+.game-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.game-actions button {
+    padding: 15px 30px;
+    font-size: 20px;
+    border-radius: 15px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+    min-width: 150px;
+}
+
+.game-actions button:hover {
+    transform: scale(1.05);
+}
+
+.start-game-btn {
+    background-color: #4CAF50;
+}
+
+.finish-game-btn {
+    background-color: var(--accent-color);
+}
+
+/* 返回按钮样式 - 优化后 */
+.back-btn {
+    background-color: #f44336;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 15px 20px;
+    font-size: 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+}
+
+.warning-message {
+    color: #f44336;
+    font-size: 18px;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgba(255,0,0,0.1);
+    display: none;
+    text-align: center;
+}
+
+/* 成功消息样式 */
+.success-message {
+    color: #4CAF50;
+    font-size: 18px;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgba(76, 175, 80, 0.1);
+    display: none;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎉 学习任务挑战助手</h1>
+    </div>
+
+    <div class="input-section">
+        <div class="error-message" id="errorMsg"></div>
+        <div class="input-area">
+            <div class="input-group">
+                <select id="taskTag">
+                    <option value="">-- 学科选择 --</option>
+                    <option value="语文">语文</option>
+                    <option value="数学">数学</option>
+                    <option value="英语">英语</option>
+                    <option value="科学">科学</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="输入任务内容">
+            </div>
+            <div class="input-group">
+                <input type="number" id="taskMinutes" placeholder="计划时长(分钟)" min="1">
+            </div>
+            <button onclick="addTask()">添加任务</button>
+            <button class="redeem-btn" onclick="showGameTimePage()">兑换游戏时间</button>
+            <div class="flower-display">
+                <span>获得花朵：</span>
+                <span class="flower-count">🌸 0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <div class="stat-card">
+            <h3>今日完成任务</h3>
+            <div class="value" id="todayTasks">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>今日学习时长</h3>
+            <div class="value" id="todayDuration">0 分钟</div>
+        </div>
+        <div class="stat-card">
+            <h3>累计获得花朵</h3>
+            <div class="value" id="totalFlowers">0</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="task-column">
+            <h2>进行中任务</h2>
+            <ul class="task-list" id="todoList"></ul>
+        </div>
+        <div class="task-column">
+            <h2>已完成任务</h2>
+            <ul class="task-list" id="doneList"></ul>
+        </div>
+    </div>
+
+    <!-- 右下角图标按钮 -->
+    <div class="icon-controls">
+        <button class="icon-btn export-btn" title="导出数据" onclick="exportData()">
+            <i class="fas fa-download"></i>
+        </button>
+        <button class="icon-btn import-btn" title="导入数据" onclick="document.getElementById('importInput').click()">
+            <i class="fas fa-upload"></i>
+        </button>
+        <button class="icon-btn theme-btn" title="切换深色模式" onclick="toggleDarkMode()">
+            <i class="fas fa-moon"></i>
+        </button>
+        <input type="file" id="importInput" accept=".json" onchange="importData(event)">
+    </div>
+
+    <!-- 游戏时间兑换页面 - 优化后 -->
+    <div id="gameTimePage">
+        <button class="back-btn" onclick="hideGameTimePage()">
+            <i class="fas fa-arrow-left"></i> 返回
+        </button>
+        
+        <h2>🎮 游戏时间兑换</h2>
+        
+        <div class="game-time-container">
+            <div class="game-time-info">
+                <p>当前拥有: <span class="flower-count" id="gameFlowerCount">🌸 0</span></p>
+                <p>1朵小红花 = 5分钟游戏时间</p>
+            </div>
+            
+            <div class="game-time-controls">
+                <div class="time-selection">
+                    <p style="width: 100%; margin-bottom: 15px;">选择兑换时间：</p>
+                    <div class="time-selection-row">
+                        <button onclick="selectGameTime(5)">5分钟 (1朵)</button>
+                        <button onclick="selectGameTime(10)">10分钟 (2朵)</button>
+                    </div>
+                    <div class="time-selection-row">
+                        <button onclick="selectGameTime(15)">15分钟 (3朵)</button>
+                        <button onclick="selectGameTime(20)">20分钟 (4朵)</button>
+                    </div>
+                </div>
+                
+                <div class="time-display" id="gameTimeDisplay">00:00</div>
+                
+                <div class="game-actions">
+                    <button class="start-game-btn" onclick="startGameTimer()">开始游戏</button>
+                    <button class="finish-game-btn" onclick="finishGame()" disabled="">完成游戏</button>
+                </div>
+                
+                <div class="warning-message" id="gameWarning"></div>
+                <div class="success-message" id="gameSuccess"></div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2868/2868-preview.mp3" preload="auto"></audio>
+    <audio id="warningSound" src="https://assets.mixkit.co/active_storage/sfx/2577/2577-preview.mp3" preload="auto"></think>
+
+    <div class="popup" id="popup">
+        <img src="https://cdn-icons-png.flaticon.com/512/992/992700.png" alt="完成任务的奖杯图标">
+        <h3>🎊 挑战完成！太棒了！🎊</h3>
+        <button onclick="closePopup()">确定</button>
+    </div>
+
+    <script>
+    let flowerCount = 0;
+    let totalFlowerCount = 0; // 累计获得花朵数量，不随游戏扣除而减少
+    let tasksHistory = [];
+    let selectedGameMinutes = 0;
+    let gameTimer = null;
+    let gameSeconds = 0;
+    let isGameActive = false;
+    let overtimeSeconds = 0;
+    let gameCostFlowers = 0; // 记录本次游戏兑换消耗的花朵数
+
+    // 生成唯一任务ID
+    function generateTaskId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    // 显示错误信息
+    function showError(message) {
+        const errorEl = document.getElementById("errorMsg");
+        errorEl.textContent = message;
+        setTimeout(() => errorEl.textContent = "", 3000);
+    }
+
+    // 更新花朵数量显示
+    function updateFlowerCount() {
+        // 当前可用花朵数
+        document.querySelector('.flower-count').textContent = `🌸 ${flowerCount}`;
+        document.getElementById("gameFlowerCount").textContent = `🌸 ${flowerCount}`;
+        
+        // 累计获得花朵数（不减少）
+        document.getElementById("totalFlowers").textContent = totalFlowerCount;
+        
+        localStorage.setItem("flowerCount", flowerCount);
+        localStorage.setItem("totalFlowerCount", totalFlowerCount);
+    }
+
+    // 更新统计数据
+    function updateStatistics() {
+        const today = new Date().toLocaleDateString();
+        const todayTasks = tasksHistory.filter(task => task.date === today);
+        // 计算实际学习时长总和
+        const todayDuration = todayTasks.reduce((sum, task) => sum + parseInt(task.actualMinutes || 0), 0);
+        
+        document.getElementById("todayTasks").textContent = todayTasks.length;
+        document.getElementById("todayDuration").textContent = `${todayDuration} 分钟`;
+    }
+
+    // 保存任务数据到本地存储
+    function saveTasks() {
+        const todo = Array.from(document.getElementById("todoList").children).map(li => ({
+            id: li.dataset.id,
+            tag: li.dataset.tag || "",
+            text: li.dataset.text || "",
+            minutes: li.dataset.minutes,
+            remaining: li.dataset.remaining,
+            startTime: li.dataset.startTime,
+            failed: li.classList.contains("failed"),
+            isRunning: li.timer !== undefined && li.timer !== null
+        }));
+        
+        const done = Array.from(document.getElementById("doneList").children).map(li => ({
+            id: li.dataset.id,
+            tag: li.dataset.tag || "",
+            text: li.dataset.text || "",
+            plannedMinutes: li.dataset.plannedMinutes,
+            flowers: li.dataset.flowers || "1",
+            finishTime: li.dataset.finishTime,
+            actualMinutes: li.dataset.actualMinutes
+        }));
+        
+        localStorage.setItem("todoTasks", JSON.stringify(todo));
+        localStorage.setItem("doneTasks", JSON.stringify(done));
+        localStorage.setItem("tasksHistory", JSON.stringify(tasksHistory));
+    }
+
+    // 添加新任务
+    function addTask() {
+        const tagSelect = document.getElementById("taskTag");
+        const input = document.getElementById("taskInput");
+        const minutesInput = document.getElementById("taskMinutes");
+        
+        const taskTag = tagSelect.value;
+        const taskText = input.value.trim();
+        const plannedMinutes = parseInt(minutesInput.value);
+
+        if (!taskTag) {
+            showError("请选择学科！");
+            return;
+        }
+        if (!taskText) {
+            showError("请输入任务内容！");
+            return;
+        }
+        if (!plannedMinutes || plannedMinutes <= 0) {
+            showError("请输入有效的计划时长（至少1分钟）！");
+            return;
+        }
+
+        // 创建任务元素，生成唯一ID
+        const taskId = generateTaskId();
+        const li = createTaskElement(taskId, taskTag, taskText, plannedMinutes, plannedMinutes * 60);
+        document.getElementById("todoList").appendChild(li);
+        
+        // 清空输入框
+        tagSelect.selectedIndex = 0;
+        input.value = "";
+        minutesInput.value = "";
+        
+        saveTasks();
+    }
+
+    // 创建任务元素
+    function createTaskElement(id, tag, text, plannedMinutes, remaining) {
+        const li = document.createElement("li");
+        li.className = "task-item";
+        li.dataset.id = id;
+        li.dataset.tag = tag;
+        li.dataset.text = text;
+        li.dataset.plannedMinutes = plannedMinutes; // 计划时长
+        li.dataset.remaining = remaining;
+        
+        const tagHtml = tag ? `<span class="task-tag">${tag}</span>` : "";
+        
+        li.innerHTML = `
+            <div class="task-header">
+                <div class="task-info">
+                    <div>
+                        ${tagHtml}
+                        <span class="task-text">${text}</span>
+                    </div>
+                    <div class="task-time">剩余：${formatTime(remaining)}</div>
+                </div>
+                <div class="task-actions">
+                    <button class="edit-btn" onclick="editTask(this)">编辑</button>
+                    <button class="delete-btn" onclick="deleteTask(this)">删除</button>
+                    <button class="start-btn" onclick="startTaskTimer(this)">开始</button>
+                    <button class="done-btn" onclick="finishTask(this)">完成</button>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: 100%"></div>
+            </div>
+        `;
+        
+        return li;
+    }
+
+    // 格式化时间显示
+    function formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // 格式化完成时间显示
+    function formatFinishTime(date) {
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    // 编辑任务
+    function editTask(button) {
+        const li = button.closest(".task-item");
+        const originalTag = li.dataset.tag;
+        const originalText = li.dataset.text;
+        const originalMinutes = parseInt(li.dataset.plannedMinutes);
+
+        // 如果任务正在运行，不允许编辑
+        if (li.timer) {
+            showError("正在进行的任务不能编辑！");
+            return;
+        }
+
+        // 创建标签选择的提示框
+        const tags = ["语文", "数学", "英语", "科学"];
+        
+        // 使用prompt模拟选择框
+        const newTag = prompt(
+            "请选择学科:\n1. 语文\n2. 数学\n3. 英语\n4. 科学",
+            tags.indexOf(originalTag) + 1
+        );
+        
+        if (newTag === null) return; // 取消编辑
+        if (!["1", "2", "3", "4"].includes(newTag)) {
+            showError("请输入有效的学科编号（1-4）！");
+            return;
+        }
+        
+        const selectedTag = tags[parseInt(newTag) - 1];
+
+        const newText = prompt("任务内容：", originalText);
+        if (!newText || newText.trim() === "") {
+            showError("任务内容不能为空！");
+            return;
+        }
+
+        const newMinutes = parseInt(prompt("计划时长（分钟）：", originalMinutes));
+        if (!newMinutes || newMinutes <= 0) {
+            showError("请输入有效的时长！");
+            return;
+        }
+
+        // 更新任务数据
+        li.dataset.tag = selectedTag;
+        li.dataset.text = newText;
+        li.dataset.plannedMinutes = newMinutes;
+        li.dataset.remaining = newMinutes * 60;
+        
+        // 更新UI
+        const tagHtml = selectedTag ? `<span class="task-tag">${selectedTag}</span>` : "";
+        li.querySelector(".task-info div:first-child").innerHTML = `${tagHtml}<span class="task-text">${newText}</span>`;
+        li.querySelector(".task-time").textContent = `剩余：${formatTime(newMinutes * 60)}`;
+        li.querySelector(".progress-bar").style.width = "100%";
+
+        saveTasks();
+    }
+
+    // 删除任务
+    function deleteTask(button) {
+        const li = button.closest(".task-item");
+        const taskId = li.dataset.id;
+        
+        // 如果任务正在运行，需要确认
+        if (li.timer && !confirm("此任务正在进行中，确定要删除吗？")) {
+            return;
+        }
+        
+        // 清除计时器
+        if (li.timer) {
+            clearInterval(li.timer);
+        }
+        
+        // 从localStorage中移除任务
+        const runningTasks = JSON.parse(localStorage.getItem('runningTasks') || '{}');
+        if (runningTasks[taskId]) {
+            delete runningTasks[taskId];
+            localStorage.setItem('runningTasks', JSON.stringify(runningTasks));
+        }
+        
+        li.remove();
+        saveTasks();
+    }
+
+    // 开始任务计时器
+    function startTaskTimer(button) {
+        const li = button.closest(".task-item");
+        const taskId = li.dataset.id;
+        
+        // 如果已经在运行，直接返回
+        if (li.timer) {
+            return;
+        }
+        
+        const timeDisplay = li.querySelector(".task-time");
+        const progressBar = li.querySelector(".progress-bar");
+        let remaining = parseInt(li.dataset.remaining);
+        const totalSeconds = parseInt(li.dataset.plannedMinutes) * 60;
+        
+        // 记录开始时间
+        const startTime = new Date();
+        li.dataset.startTime = startTime.toISOString();
+        
+        // 保存到localStorage，实现关闭网页后继续计时
+        const runningTasks = JSON.parse(localStorage.getItem('runningTasks') || '{}');
+        runningTasks[taskId] = {
+            startTime: startTime.toISOString(),
+            totalSeconds: totalSeconds
+        };
+        localStorage.setItem('runningTasks', JSON.stringify(runningTasks));
+        
+        // 禁用编辑、删除和开始按钮
+        button.disabled = true;
+        button.textContent = "进行中";
+        li.querySelector(".edit-btn").disabled = true;
+        li.querySelector(".delete-btn").style.display = "none"; // 隐藏删除按钮
+        
+        // 开始计时，无法暂停
+        li.timer = setInterval(() => {
+            remaining--;
+            li.dataset.remaining = remaining;
+            
+            // 更新时间显示
+            timeDisplay.textContent = `剩余：${formatTime(remaining)}`;
+
+            // 更新进度条
+            const progress = (remaining / totalSeconds) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // 时间到，任务失败
+            if (remaining <= 0) {
+                clearInterval(li.timer);
+                li.timer = null;
+                timeDisplay.textContent = "时间到！";
+                li.classList.add("failed");
+                
+                // 从localStorage中移除
+                const runningTasks = JSON.parse(localStorage.getItem('runningTasks') || '{}');
+                if (runningTasks[taskId]) {
+                    delete runningTasks[taskId];
+                    localStorage.setItem('runningTasks', JSON.stringify(runningTasks));
+                }
+                
+                // 移除按钮
+                const actions = li.querySelector(".task-actions");
+                actions.innerHTML = "";
+                
+                document.getElementById("alarmSound").play();
+                saveTasks();
+            }
+        }, 1000);
+        
+        saveTasks();
+    }
+
+    // 完成任务 - 根据实际学习时长计算小红花
+    function finishTask(button) {
+        const li = button.closest(".task-item");
+        const taskId = li.dataset.id;
+        
+        // 清除计时器
+        if (li.timer) {
+            clearInterval(li.timer);
+            li.timer = null;
+        }
+        
+        // 从localStorage中移除
+        const runningTasks = JSON.parse(localStorage.getItem('runningTasks') || '{}');
+        if (runningTasks[taskId]) {
+            delete runningTasks[taskId];
+            localStorage.setItem('runningTasks', JSON.stringify(runningTasks));
+        }
+
+        const plannedMinutes = parseInt(li.dataset.plannedMinutes);
+        const tag = li.dataset.tag;
+        const text = li.dataset.text;
+        const startTime = li.dataset.startTime ? new Date(li.dataset.startTime) : new Date();
+        const finishTime = new Date();
+        
+        // 计算实际用时（向上取整到分钟）
+        const actualSeconds = Math.round((finishTime - startTime) / 1000);
+        const actualMinutes = Math.ceil(actualSeconds / 60); // 向上取整，不足1分钟按1分钟算
+        
+        // 计算奖励花朵数量：根据实际学习时长计算
+        // 30分钟内1朵，之后每增加30分钟多1朵
+        let reward = 1; // 基础1朵（30分钟内）
+        if (actualMinutes > 30) {
+            // 计算超过30分钟的部分有多少个30分钟
+            const extraTime = actualMinutes - 30;
+            reward += Math.floor(extraTime / 30) + (extraTime % 30 > 0 ? 1 : 0);
+        }
+        
+        // 更新任务信息
+        li.classList.add("completed");
+        li.dataset.flowers = reward;
+        li.dataset.finishTime = finishTime.toISOString();
+        li.dataset.actualMinutes = actualMinutes;
+        
+        // 显示完成时间和实际学习时长
+        li.querySelector(".task-time").textContent = 
+            `完成于：${formatFinishTime(finishTime)}（实际用时：${actualMinutes}分钟）`;
+        li.querySelector(".task-text").innerHTML += ` <span class="flower">🌸×${reward}</span>`;
+        
+        // 移除按钮
+        const actions = li.querySelector(".task-actions");
+        actions.innerHTML = "";
+        
+        // 移动到已完成列表
+        document.getElementById("doneList").appendChild(li);
+        
+        // 更新统计和花朵数量
+        tasksHistory.push({
+            date: new Date().toLocaleDateString(),
+            plannedMinutes,
+            actualMinutes,
+            tag
+        });
+        
+        // 同时更新可用花朵和累计花朵
+        flowerCount += reward;
+        totalFlowerCount += reward;
+        updateFlowerCount();
+        updateStatistics();
+        
+        // 播放提示音并显示弹窗
+        document.getElementById("alarmSound").play();
+        showPopup();
+        
+        saveTasks();
+    }
+
+    // 弹窗控制
+    function showPopup() {
+        document.getElementById("popup").style.display = "block";
+    }
+
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+    }
+
+    // 导出数据
+    function exportData() {
+        try {
+            const data = {
+                flowerCount,
+                totalFlowerCount,
+                tasksHistory,
+                todoTasks: JSON.parse(localStorage.getItem("todoTasks") || "[]"),
+                doneTasks: JSON.parse(localStorage.getItem("doneTasks") || "[]"),
+                runningTasks: JSON.parse(localStorage.getItem("runningTasks") || "{}")
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `学习任务数据_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showError("数据导出成功！");
+        } catch (e) {
+            showError("数据导出失败：" + e.message);
+        }
+    }
+
+    // 导入数据
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (confirm("确定要导入数据吗？这将覆盖当前所有数据！")) {
+                    localStorage.setItem("flowerCount", data.flowerCount || 0);
+                    localStorage.setItem("totalFlowerCount", data.totalFlowerCount || 0);
+                    localStorage.setItem("tasksHistory", JSON.stringify(data.tasksHistory || []));
+                    localStorage.setItem("todoTasks", JSON.stringify(data.todoTasks || []));
+                    localStorage.setItem("doneTasks", JSON.stringify(data.doneTasks || []));
+                    localStorage.setItem("runningTasks", JSON.stringify(data.runningTasks || {}));
+                    location.reload(); // 重新加载页面应用新数据
+                }
+            } catch (e) {
+                showError("导入失败：文件格式不正确");
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ""; // 重置文件输入
+    }
+
+    // 切换深色模式
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        // 更新月亮/太阳图标
+        const themeBtn = document.querySelector('.theme-btn i');
+        if (document.body.classList.contains('dark-mode')) {
+            themeBtn.classList.remove('fa-moon');
+            themeBtn.classList.add('fa-sun');
+        } else {
+            themeBtn.classList.remove('fa-sun');
+            themeBtn.classList.add('fa-moon');
+        }
+        localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+    }
+
+    // 游戏时间兑换功能
+    function showGameTimePage() {
+        document.getElementById("gameTimePage").style.display = "flex";
+        // 重置游戏时间选择
+        resetGameTimeSelection();
+    }
+
+    function hideGameTimePage() {
+        // 从游戏界面返回任务界面不扣除任何小红花
+        document.getElementById("gameTimePage").style.display = "none";
+        
+        // 清除计时器
+        if (gameTimer) {
+            clearInterval(gameTimer);
+            gameTimer = null;
+        }
+        
+        isGameActive = false;
+    }
+
+    function resetGameTimeSelection() {
+        // 重置选择状态
+        const buttons = document.querySelectorAll('.time-selection button');
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        selectedGameMinutes = 0;
+        gameSeconds = 0;
+        gameCostFlowers = 0;
+        document.getElementById("gameTimeDisplay").textContent = "00:00";
+        document.getElementById("gameTimeDisplay").style.color = "";
+        document.getElementById("gameWarning").style.display = "none";
+        document.getElementById("gameSuccess").style.display = "none";
+        
+        // 重置按钮状态
+        document.querySelector('.start-game-btn').disabled = false;
+        document.querySelector('.finish-game-btn').disabled = true;
+        
+        // 清除计时器
+        if (gameTimer) {
+            clearInterval(gameTimer);
+            gameTimer = null;
+        }
+        
+        isGameActive = false;
+        overtimeSeconds = 0;
+    }
+
+    function selectGameTime(minutes) {
+        if (isGameActive) return;
+        
+        // 计算所需花朵数量 (1朵 = 5分钟)
+        const requiredFlowers = Math.ceil(minutes / 5);
+        
+        // 检查是否有足够的花朵
+        if (flowerCount < requiredFlowers) {
+            showError(`小红花不足！需要${requiredFlowers}朵，当前只有${flowerCount}朵`);
+            return;
+        }
+        
+        // 更新选择状态
+        const buttons = document.querySelectorAll('.time-selection button');
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        
+        selectedGameMinutes = minutes;
+        gameSeconds = minutes * 60;
+        gameCostFlowers = requiredFlowers; // 记录本次兑换所需花朵
+        document.getElementById("gameTimeDisplay").textContent = formatTime(gameSeconds);
+    }
+
+    function startGameTimer() {
+        if (selectedGameMinutes <= 0) {
+            showError("请先选择要兑换的游戏时间！");
+            return;
+        }
+        
+        // 扣除游戏兑换所需花朵
+        flowerCount -= gameCostFlowers;
+        updateFlowerCount();
+        
+        isGameActive = true;
+        document.querySelector('.start-game-btn').disabled = true;
+        document.querySelector('.finish-game-btn').disabled = false;
+        document.getElementById("gameWarning").style.display = "none";
+        document.getElementById("gameSuccess").style.display = "none";
+        
+        // 开始倒计时
+        gameTimer = setInterval(() => {
+            gameSeconds--;
+            
+            if (gameSeconds >= 0) {
+                // 正常倒计时
+                document.getElementById("gameTimeDisplay").textContent = formatTime(gameSeconds);
+            } else {
+                // 超时处理 - 实时扣除小红花
+                overtimeSeconds++;
+                document.getElementById("gameTimeDisplay").textContent = `+${formatTime(Math.abs(gameSeconds))}`;
+                document.getElementById("gameTimeDisplay").style.color = "#f44336";
+                
+                // 显示超时警告
+                document.getElementById("gameWarning").style.display = "block";
+                
+                // 播放警告音（每30秒一次）
+                if (overtimeSeconds % 30 === 0) {
+                    document.getElementById("warningSound").play();
+                }
+                
+                // 根据超时时间更新警告信息并实时扣除花朵
+                updateOvertimeWarning(true);
+            }
+        }, 1000);
+    }
+
+    // 更新超时警告并根据需要实时扣除花朵
+    function updateOvertimeWarning(deductNow = false) {
+        const overtimeMinutes = Math.ceil(overtimeSeconds / 60);
+        let warningText = "";
+        let penalty = 0;
+        let shouldDeduct = deductNow;
+        
+        // 只在达到特定时间点时扣除一次
+        if (overtimeMinutes >= 15 && overtimeSeconds % 60 === 0) {
+            warningText = `已超时15分钟！已扣除所有小红花！`;
+            penalty = flowerCount; // 清零
+        } else if (overtimeMinutes >= 10 && overtimeSeconds === 10 * 60) {
+            warningText = `已超时10分钟！已扣除10朵小红花！`;
+            penalty = 10;
+        } else if (overtimeMinutes >= 5 && overtimeSeconds === 5 * 60) {
+            warningText = `已超时5分钟！已扣除3朵小红花！`;
+            penalty = 3;
+        } else if (overtimeMinutes >= 2 && overtimeSeconds === 2 * 60) {
+            warningText = `已超时2分钟！已扣除1朵小红花！`;
+            penalty = 1;
+        } else {
+            warningText = `已超时${overtimeMinutes}分钟，请尽快结束游戏！`;
+            shouldDeduct = false; // 不是特定时间点，不扣除
+        }
+        
+        // 实时扣除花朵
+        if (shouldDeduct && penalty > 0) {
+            flowerCount = Math.max(0, flowerCount - penalty);
+            updateFlowerCount();
+        }
+        
+        document.getElementById("gameWarning").textContent = warningText;
+    }
+
+    function finishGame() {
+        clearInterval(gameTimer);
+        gameTimer = null;
+        
+        if (overtimeSeconds > 0) {
+            // 超时已经在计时过程中实时扣除了
+            showError(`游戏结束，超时${Math.ceil(overtimeSeconds / 60)}分钟`);
+        } else {
+            // 未超时，显示成功信息
+            document.getElementById("gameSuccess").textContent = "太棒了！按时完成游戏！";
+            document.getElementById("gameSuccess").style.display = "block";
+        }
+        
+        // 5秒后返回主页面
+        setTimeout(() => {
+            hideGameTimePage();
+        }, 5000);
+    }
+
+    // 恢复正在进行的任务计时（修复多次关闭网页后错误显示时间到的问题）
+    function resumeRunningTasks() {
+        const runningTasks = JSON.parse(localStorage.getItem('runningTasks') || '{}');
+        const todoItems = document.querySelectorAll('#todoList .task-item');
+        
+        todoItems.forEach(li => {
+            const taskId = li.dataset.id;
+            const taskData = runningTasks[taskId];
+            
+            if (taskData) {
+                try {
+                    // 计算页面关闭期间已经过去的时间（使用getTime()获取毫秒数进行精确计算）
+                    const startTime = new Date(taskData.startTime);
+                    const currentTime = new Date();
+                    const startTimeMs = startTime.getTime();
+                    const currentTimeMs = currentTime.getTime();
+                    
+                    // 计算已过去的秒数（向上取整以确保时间不会被低估）
+                    const elapsedSeconds = Math.ceil((currentTimeMs - startTimeMs) / 1000);
+                    const remainingSeconds = Math.max(0, taskData.totalSeconds - elapsedSeconds);
+                    
+                    // 更新剩余时间
+                    li.dataset.remaining = remainingSeconds;
+                    li.dataset.startTime = taskData.startTime;
+                    
+                    // 更新UI
+                    li.querySelector(".task-time").textContent = `剩余：${formatTime(remainingSeconds)}`;
+                    const progress = (remainingSeconds / taskData.totalSeconds) * 100;
+                    li.querySelector(".progress-bar").style.width = `${progress}%`;
+                    
+                    // 验证时间计算是否正确
+                    const totalMinutes = Math.ceil(taskData.totalSeconds / 60);
+                    const elapsedMinutes = Math.ceil(elapsedSeconds / 60);
+                    
+                    // 只有当剩余时间确实为0时才标记为失败
+                    if (remainingSeconds <= 0) {
+                        li.classList.add("failed");
+                        li.querySelector(".task-time").textContent = "时间到！";
+                        li.querySelector(".task-actions").innerHTML = "";
+                        
+                        // 从localStorage中移除
+                        delete runningTasks[taskId];
+                        localStorage.setItem('runningTasks', JSON.stringify(runningTasks));
+                    } else {
+                        // 否则继续计时
+                        const startBtn = li.querySelector(".start-btn");
+                        startBtn.disabled = true;
+                        startBtn.textContent = "进行中";
+                        li.querySelector(".edit-btn").disabled = true;
+                        li.querySelector(".delete-btn").style.display = "none";
+                        
+                        // 启动计时器
+                        startTaskTimer(startBtn);
+                    }
+                } catch (error) {
+                    console.error(`恢复任务计时失败: ${error.message}`);
+                    // 出错时不标记为失败，而是让用户手动处理
+                    li.querySelector(".task-time").textContent = "计时恢复失败，请检查";
+                }
+            }
+        });
+        
+        // 保存更新后的运行中任务状态
+        localStorage.setItem('runningTasks', JSON.stringify(runningTasks));
+    }
+
+    // 从本地存储加载任务
+    function loadTasks() {
+        try {
+            // 加载深色模式设置
+            if (localStorage.getItem("darkMode") === "true") {
+                document.body.classList.add("dark-mode");
+                // 更新为太阳图标
+                const themeBtn = document.querySelector('.theme-btn i');
+                themeBtn.classList.remove('fa-moon');
+                themeBtn.classList.add('fa-sun');
+            }
+
+            // 初始化运行中任务的存储
+            if (!localStorage.getItem('runningTasks')) {
+                localStorage.setItem('runningTasks', JSON.stringify({}));
+            }
+
+            // 加载花朵数量（区分可用花朵和累计花朵）
+            flowerCount = parseInt(localStorage.getItem("flowerCount")) || 0;
+            totalFlowerCount = parseInt(localStorage.getItem("totalFlowerCount")) || 0;
+            updateFlowerCount();
+
+            // 加载任务历史
+            tasksHistory = JSON.parse(localStorage.getItem("tasksHistory") || "[]");
+            updateStatistics();
+
+            // 加载待办任务
+            const todoData = JSON.parse(localStorage.getItem("todoTasks") || "[]");
+            todoData.forEach(task => {
+                const li = createTaskElement(
+                    task.id || generateTaskId(), // 确保有ID
+                    task.tag, 
+                    task.text, 
+                    task.minutes, 
+                    task.remaining
+                );
+                li.dataset.startTime = task.startTime;
+                
+                if (task.failed) li.classList.add("failed");
+                
+                document.getElementById("todoList").appendChild(li);
+            });
+
+            // 恢复正在进行的任务计时
+            resumeRunningTasks();
+
+            // 加载已完成任务
+            const doneData = JSON.parse(localStorage.getItem("doneTasks") || "[]");
+            doneData.forEach(task => {
+                const li = document.createElement("li");
+                li.className = "task-item completed";
+                li.dataset.id = task.id || generateTaskId(); // 确保有ID
+                li.dataset.tag = task.tag;
+                li.dataset.text = task.text;
+                li.dataset.plannedMinutes = task.plannedMinutes;
+                li.dataset.flowers = task.flowers;
+                li.dataset.finishTime = task.finishTime;
+                li.dataset.actualMinutes = task.actualMinutes;
+                
+                const tagHtml = task.tag ? `<span class="task-tag">${task.tag}</span>` : "";
+                
+                // 显示保存的完成时间和实际时长
+                const finishTimeStr = task.finishTime ? formatFinishTime(new Date(task.finishTime)) : "";
+                
+                li.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-info">
+                            <div>
+                                ${tagHtml}
+                                <span class="task-text">${task.text} <span class="flower">🌸×${task.flowers}</span></span>
+                            </div>
+                            <div class="task-time">完成于：${finishTimeStr}（实际用时：${task.actualMinutes}分钟）</div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%"></div>
+                    </div>
+                `;
+                
+                document.getElementById("doneList").appendChild(li);
+            });
+        } catch (e) {
+            console.error("数据加载失败", e);
+            showError("数据加载异常，已重置为初始状态");
+            localStorage.clear();
+        }
+    }
+
+    // 页面加载完成后初始化
+    window.addEventListener("load", loadTasks);
+    </script>
+
+
+    </body></html>
+    
